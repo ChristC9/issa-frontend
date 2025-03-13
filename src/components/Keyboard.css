@@ -1,0 +1,52 @@
+.keyboard {
+  width: 100%;
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+  gap: 6px;
+}
+
+.keyboard-key {
+  height: 58px;
+  border-radius: 4px;
+  border: none;
+  background-color: #818384;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.keyboard-key:hover {
+  background-color: #6e6e6e;
+}
+
+.keyboard-key-wide {
+  flex: 1.5;
+  font-size: 0.8rem;
+}
+
+/* Key states */
+.keyboard-key.correct {
+  background-color: #538d4e;
+}
+
+.keyboard-key.present {
+  background-color: #b59f3b;
+}
+
+.keyboard-key.absent {
+  background-color: #3a3a3c;
+} 
