@@ -15,7 +15,6 @@ function App() {
   const [solution, setSolution] = useState(''); // Will be set from API or fallback to 'REACT'
   const [hasWon, setHasWon] = useState(false);
 
-  // For debugging - log state changes
   useEffect(() => {
     console.log('State updated:');
     console.log('- Game ID:', gameId);
@@ -26,44 +25,36 @@ function App() {
     console.log('- Current row index:', guesses.findIndex(val => val === null));
   }, [gameId, guesses, currentGuess, isGameOver, hasWon]);
 
-  // Initialize a new game on component mount
   useEffect(() => {
     initGame();
   }, []);
 
-  // Function to initialize or reset the game
   const initGame = async () => {
     try {
       setIsLoading(true);
       setGameMessage('Starting new game...');
 
-      // Reset game state
       setGuesses(Array(6).fill(null));
       setCurrentGuess('');
       setIsGameOver(false);
       setHasWon(false);
       setKeyStatuses({});
 
-      // Try to call the backend API to start a new game
       try {
         const gameData = await startNewGame();
         console.log('New game started:', gameData);
         setGameId(gameData.gameId);
 
-        // If API returns guesses, use them
         if (gameData.guesses) {
           setGuesses(gameData.guesses);
         }
 
-        // Set solution if provided (in development mode)
         if (process.env.NODE_ENV === 'development' && gameData.solution) {
           setSolution(gameData.solution);
         } else {
-          // Default solution for offline/testing
           setSolution('REACT');
         }
 
-        // Get initial key statuses
         if (gameData.gameId) {
           try {
             const keyStatusData = await getKeyStatuses(gameData.gameId);
@@ -76,7 +67,6 @@ function App() {
         setGameMessage(gameData.message || 'Guess the 5-letter word!');
       } catch (error) {
         console.error('Error calling startNewGame API:', error);
-        // Fallback to offline mode
         setSolution('REACT');
         setGameMessage('Game started! (offline mode)');
       }
@@ -88,7 +78,6 @@ function App() {
     }
   };
 
-  // Handle keyboard input
   const handleKeyup = async (key) => {
     if (isGameOver || isLoading) {
       console.log('Game is over or loading, ignoring key press');
@@ -106,8 +95,6 @@ function App() {
 
       try {
         setIsLoading(true);
-
-        // Find current row
         const currentRowIndex = guesses.findIndex(val => val === null);
 
         console.log('Submitting guess at row:', currentRowIndex);
@@ -118,7 +105,6 @@ function App() {
           return;
         }
 
-        // Try to submit the guess to the API if we have a gameId
         if (gameId) {
           try {
             console.log(`Submitting guess to API endpoint: /wordle/game/${gameId}/guess`);
@@ -136,7 +122,6 @@ function App() {
               setKeyStatuses(guessData.keyStatuses);
             }
 
-            // Check game status from API
             if (guessData.gameOver) {
               setIsGameOver(true);
               if (guessData.won) {
@@ -150,23 +135,21 @@ function App() {
               setTimeout(() => setGameMessage(''), 2000);
             }
 
-            // Reset current guess
+
             setCurrentGuess('');
-            return; // Exit early since API handled everything
+            return;
           } catch (error) {
             console.error('Error submitting guess to API:', error);
             console.log('Falling back to local guess handling');
-            // Continue with local guess handling
+
           }
         }
 
-        // Local guess handling (fallback if API fails or isn't available)
+
         console.log('Using local guess handling');
 
-        // Create a copy of the guesses array
-        const newGuesses = [...guesses];
 
-        // Calculate letter statuses locally
+        const newGuesses = [...guesses];
         const statuses = currentGuess.split('').map((letter, index) => {
           const upperLetter = letter.toUpperCase();
           const upperSolution = solution.toUpperCase();
@@ -176,16 +159,12 @@ function App() {
           return 'absent';
         });
 
-        // Update guesses array
         newGuesses[currentRowIndex] = {
           word: currentGuess.toUpperCase(),
           statuses: statuses
         };
-
-        // Update state with new reference
         setGuesses([...newGuesses]);
 
-        // Update keyboard statuses
         const newKeyStatuses = { ...keyStatuses };
         currentGuess.split('').forEach((letter, index) => {
           const upperLetter = letter.toUpperCase();
@@ -203,7 +182,6 @@ function App() {
 
         setKeyStatuses(newKeyStatuses);
 
-        // Check game status locally
         const isWin = currentGuess.toUpperCase() === solution.toUpperCase();
         const isLastRow = currentRowIndex >= 5;
 
@@ -212,10 +190,8 @@ function App() {
           setHasWon(true);
           setGameMessage('You won!');
 
-          // If we have a game ID, try to update the win status on the server
           if (gameId) {
             try {
-              // Call the API with the correct endpoint format including game ID
               console.log(`Updating win status for game ${gameId}`);
               await submitGuess(gameId, currentGuess);
               console.log(`Successfully updated win status for game ${gameId}`);
@@ -230,8 +206,6 @@ function App() {
           setGameMessage('Keep guessing!');
           setTimeout(() => setGameMessage(''), 2000);
         }
-
-        // Reset current guess
         setCurrentGuess('');
 
       } catch (error) {
@@ -249,7 +223,7 @@ function App() {
     }
   };
 
-  // Debug function
+  // Debugging
   const debugGame = async () => {
     console.log('=== DEBUG INFO ===');
     console.log('Game ID:', gameId);
@@ -259,7 +233,6 @@ function App() {
     console.log('Game over:', isGameOver);
     console.log('Has won:', hasWon);
 
-    // If we have a game ID, get the current game state
     if (gameId) {
       try {
         console.log(`Getting game state for game ${gameId}`);
