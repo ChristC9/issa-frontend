@@ -35,9 +35,11 @@ The `api.js` file contains placeholder functions that would be replaced with act
 2. Install dependencies:
    ```
    npm install
+   yarn add .
    ```
 3. Start the development server:
    ```
+   yarn start
    npm start
    ```
 
